@@ -15,16 +15,32 @@ paths:
                 $ref: "#/components/schemas/MessageFromServer"
 components:
   schemas:
+    MessageToServer:
+      oneOf:
+        - $ref: "#/components/schemas/IncidentCommand"
     MessageFromServer:
       oneOf:
         - $ref: "#/components/schemas/IncidentsSummaryList"
         - $ref: "#/components/schemas/IncidentEvent"
 
-    IncidentEvent:
+    IncidentCommand:
       properties:
         incidentId:
           type: string
           format: uuid
+        delta:
+          $ref: "#/components/schemas/IncidentDelta"
+      required: [incidentId, delta]
+
+    IncidentEvent:
+      allOf:
+        - $ref: "#/components/schemas/IncidentCommand"
+        - properties:
+            username:
+              type: string
+            timestamp:
+              type: integer
+              format: int64
 
     MessageSummary:
       properties:
@@ -55,3 +71,13 @@ components:
       required:
         - id
         - title
+
+    IncidentDelta:
+      oneOf:
+        - $ref: "#/components/schemas/CreateIncidentDelta"
+
+    CreateIncidentDelta:
+      properties:
+        title:
+          type: string
+      required: [title]
