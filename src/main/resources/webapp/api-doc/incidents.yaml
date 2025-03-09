@@ -86,10 +86,21 @@ components:
         priority:
           enum: [HIGH, MEDIUM, LOW]
 
+    InvolvedPersonInfo:
+      properties:
+        role:
+          enum: [SUSPECT, CALLER, WITNESS]
+        firstName:
+          type: string
+        lastName:
+          type: string
+      required: [role]
+
     IncidentDelta:
       oneOf:
         - $ref: "#/components/schemas/CreateIncidentDelta"
         - $ref: "#/components/schemas/UpdateIncidentDelta"
+        - $ref: "#/components/schemas/AddInvolvedPersonToIncident"
       discriminator:
         propertyName: delta
 
@@ -101,3 +112,10 @@ components:
       properties:
         info: { $ref: "#/components/schemas/IncidentInfo" }
       required: [info]
+    AddInvolvedPersonToIncident:
+      properties:
+        personId:
+          type: string
+          format: uuid
+        info: { $ref: "#/components/schemas/InvolvedPersonInfo" }
+      required: [personId, info]

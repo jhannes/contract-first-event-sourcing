@@ -77,6 +77,8 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
                 incidents.get(command.getIncidentId())
                         .setUpdatedAt(command.getEventTime())
                         .getInfo().putAll(update.getInfo());
+            } else {
+                log.warn("Unknown event type {}", command.getDelta().getClass().getName());
             }
 
             broadcastMessage(new IncidentEvent().setTimestamp(System.currentTimeMillis()).putAll(command));
