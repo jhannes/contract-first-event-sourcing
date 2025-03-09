@@ -9,6 +9,7 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.openapitools.client.model.CreateIncidentDelta;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
 import org.openapitools.client.model.IncidentInfo;
@@ -16,7 +17,7 @@ import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentsSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
-import org.openapitools.client.model.SampleModelData;
+import org.openapitools.client.model.UpdateIncidentDelta;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,11 +38,10 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
     private final Set<WebSocketAdapter> connectedClients = new HashSet<>();
 
     public ApplicationWebSocketAdapter() {
-        var sampleData = new SampleModelData(-1);
-        incidents.put(UUID.randomUUID(), sampleData.sampleIncidentSummary()
-                .setInfo(new IncidentInfo().setTitle("Fire")));
-        incidents.put(UUID.randomUUID(), sampleData.sampleIncidentSummary()
-                .setInfo(new IncidentInfo().setTitle("Traffic accident")));
+        addIncident(new IncidentSummary().setIncidentId(UUID.randomUUID())
+                .setInfo(new IncidentInfo().setTitle("Fire").setPriority(IncidentInfo.PriorityEnum.LOW)));
+        addIncident(new IncidentSummary().setIncidentId(UUID.randomUUID())
+                .setInfo(new IncidentInfo().setTitle("Traffic accident").setPriority(IncidentInfo.PriorityEnum.LOW)));
     }
 
     @Override
@@ -49,6 +49,27 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
         var adapter = newWebSocketAdapter();
         connectedClients.add(adapter);
         return adapter;
+    }
+
+    private void handleMessageToServer(MessageToServer messageToServer) {
+        if (!messageToServer.missingRequiredFields("").isEmpty()) {
+            log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
+            return;
+        }
+
+        if (messageToServer instanceof IncidentCommand command) {
+            if (command.getDelta() instanceof CreateIncidentDelta create) {
+                addIncident(new IncidentSummary().setIncidentId(command.getIncidentId()).setInfo(create.getInfo()));
+            } else if (command.getDelta() instanceof UpdateIncidentDelta update) {
+                incidents.get(command.getIncidentId()).getInfo().putAll(update.getInfo());
+            }
+
+            broadcastMessage(new IncidentEvent().setTimestamp(System.currentTimeMillis()).putAll(command));
+        }
+    }
+
+    private void addIncident(IncidentSummary incident) {
+        incidents.put(incident.getIncidentId(), incident);
     }
 
     @SneakyThrows
@@ -79,9 +100,7 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
             public void onWebSocketText(String message) {
                 var messageToServer = mapper.readValue(message, MessageToServer.class);
                 log.info(messageToServer.toString());
-                if (messageToServer instanceof IncidentCommand command) {
-                    broadcastMessage(new IncidentEvent().setTimestamp(System.currentTimeMillis()).putAll(command));
-                }
+                handleMessageToServer(messageToServer);
             }
 
             @Override
