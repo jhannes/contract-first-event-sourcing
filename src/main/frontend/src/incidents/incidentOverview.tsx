@@ -35,11 +35,28 @@ export function IncidentOverview() {
     if ("incidents" in message) {
       setIncidents(message.incidents);
     } else if ("delta" in message) {
-      const {
-        delta: { info },
-        incidentId,
-      } = message;
-      setIncidents((old) => [...old, { info, incidentId }]);
+      const { incidentId, delta } = message;
+      switch (delta.delta) {
+        case "CreateIncidentDelta": {
+          const { info } = delta;
+          setIncidents((old) => [...old, { info, incidentId }]);
+          return;
+        }
+        case "UpdateIncidentDelta": {
+          const { info } = delta;
+          setIncidents((old) =>
+            old.map((o) =>
+              o.incidentId === incidentId
+                ? { ...o, info: { ...o.info, ...info } }
+                : o,
+            ),
+          );
+        }
+        default: {
+          const error: string = delta.delta;
+          console.error("Unknown delta ", error);
+        }
+      }
     }
   }
 

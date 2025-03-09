@@ -1,5 +1,6 @@
 package com.johannesbrodwall;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.UUID;
 @Slf4j
 public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
     private final ObjectMapper mapper = new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
             .registerModule(new ApplicationJsonMapperModule());
 
     private final Map<UUID, IncidentSummary> incidents = new HashMap<>();

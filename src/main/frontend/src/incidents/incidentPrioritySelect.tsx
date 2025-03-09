@@ -16,7 +16,7 @@ export function IncidentPrioritySelect({
     if (priority) {
       sendCommand({
         incidentId,
-        delta: { info: { priority } },
+        delta: { delta: "UpdateIncidentDelta", info: { priority } },
       });
     }
     console.log({ priority });
@@ -25,7 +25,7 @@ export function IncidentPrioritySelect({
   return (
     <span>
       <select
-        value={info.priority}
+        value={info.priority || ""}
         onChange={(e) =>
           setPriority(e.target.value as IncidentInfoPriorityEnum)
         }

@@ -82,9 +82,15 @@ components:
     IncidentDelta:
       oneOf:
         - $ref: "#/components/schemas/CreateIncidentDelta"
+        - $ref: "#/components/schemas/UpdateIncidentDelta"
+      discriminator:
+        propertyName: delta
 
     CreateIncidentDelta:
       properties:
-        info:
-          $ref: "#/components/schemas/IncidentInfo"
+        info: { $ref: "#/components/schemas/IncidentInfo" }
+      required: [info]
+    UpdateIncidentDelta:
+      properties:
+        info: { $ref: "#/components/schemas/IncidentInfo" }
       required: [info]
