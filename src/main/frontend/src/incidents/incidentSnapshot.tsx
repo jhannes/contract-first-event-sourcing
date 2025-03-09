@@ -2,12 +2,14 @@ import React, { useContext } from "react";
 import { IncidentSummary } from "./model";
 import { useParams } from "react-router";
 import { IncidentContext } from "./incidentContext";
+import { AddInvolvedPersonForm } from "./addInvolvedPersonForm";
 
 function IncidentSnapshotView({ incident }: { incident: IncidentSummary }) {
   return (
     <>
       <h2>{incident.info.title}</h2>
       <p>Priority: {incident.info.priority}</p>
+      <AddInvolvedPersonForm incidentId={incident.incidentId} />
     </>
   );
 }
