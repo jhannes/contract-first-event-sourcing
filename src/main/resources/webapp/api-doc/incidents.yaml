@@ -28,9 +28,12 @@ components:
         incidentId:
           type: string
           format: uuid
+        eventTime:
+          type: string
+          format: date-time
         delta:
           $ref: "#/components/schemas/IncidentDelta"
-      required: [incidentId, delta]
+      required: [incidentId, eventTime, delta]
 
     IncidentEvent:
       allOf:
@@ -63,14 +66,18 @@ components:
 
     IncidentSummary:
       properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
         incidentId:
           type: string
           format: uuid
         info:
           $ref: "#/components/schemas/IncidentInfo"
-      required:
-        - incidentId
-        - info
+      required: [createdAt, updatedAt, incidentId, info]
 
     IncidentInfo:
       properties:

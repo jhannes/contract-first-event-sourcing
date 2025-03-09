@@ -2,6 +2,7 @@ package com.johannesbrodwall;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.websocket.api.Session;
@@ -20,6 +21,7 @@ import org.openapitools.client.model.MessageToServer;
 import org.openapitools.client.model.UpdateIncidentDelta;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +33,7 @@ import java.util.UUID;
 public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
     private final ObjectMapper mapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
+            .registerModule(new JavaTimeModule())
             .registerModule(new ApplicationJsonMapperModule());
 
     private final Map<UUID, IncidentSummary> incidents = new HashMap<>();
@@ -39,8 +42,12 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
 
     public ApplicationWebSocketAdapter() {
         addIncident(new IncidentSummary().setIncidentId(UUID.randomUUID())
+                .setCreatedAt(OffsetDateTime.now().minusSeconds(200))
+                .setUpdatedAt(OffsetDateTime.now().minusSeconds(200))
                 .setInfo(new IncidentInfo().setTitle("Fire").setPriority(IncidentInfo.PriorityEnum.LOW)));
         addIncident(new IncidentSummary().setIncidentId(UUID.randomUUID())
+                .setCreatedAt(OffsetDateTime.now().minusSeconds(100))
+                .setUpdatedAt(OffsetDateTime.now().minusSeconds(100))
                 .setInfo(new IncidentInfo().setTitle("Traffic accident").setPriority(IncidentInfo.PriorityEnum.LOW)));
     }
 
@@ -59,9 +66,16 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
 
         if (messageToServer instanceof IncidentCommand command) {
             if (command.getDelta() instanceof CreateIncidentDelta create) {
-                addIncident(new IncidentSummary().setIncidentId(command.getIncidentId()).setInfo(create.getInfo()));
+                addIncident(new IncidentSummary()
+                        .setCreatedAt(command.getEventTime())
+                        .setUpdatedAt(command.getEventTime())
+                        .setIncidentId(command.getIncidentId())
+                        .setInfo(create.getInfo())
+                );
             } else if (command.getDelta() instanceof UpdateIncidentDelta update) {
-                incidents.get(command.getIncidentId()).getInfo().putAll(update.getInfo());
+                incidents.get(command.getIncidentId())
+                        .setUpdatedAt(command.getEventTime())
+                        .getInfo().putAll(update.getInfo());
             }
 
             broadcastMessage(new IncidentEvent().setTimestamp(System.currentTimeMillis()).putAll(command));

@@ -14,6 +14,7 @@ export function NewIncidentForm({
     e.preventDefault();
     sendCommand({
       incidentId,
+      eventTime: new Date(),
       delta: { delta: "CreateIncidentDelta", info: { title } },
     });
     setIncidentId(uuidv4());

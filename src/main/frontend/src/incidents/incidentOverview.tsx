@@ -35,11 +35,14 @@ export function IncidentOverview() {
     if ("incidents" in message) {
       setIncidents(message.incidents);
     } else if ("delta" in message) {
-      const { incidentId, delta } = message;
+      const { incidentId, eventTime: updatedAt, delta } = message;
       switch (delta.delta) {
         case "CreateIncidentDelta": {
           const { info } = delta;
-          setIncidents((old) => [...old, { info, incidentId }]);
+          setIncidents((old) => [
+            ...old,
+            { info, createdAt: updatedAt, updatedAt, incidentId },
+          ]);
           return;
         }
         case "UpdateIncidentDelta": {
@@ -47,7 +50,7 @@ export function IncidentOverview() {
           setIncidents((old) =>
             old.map((o) =>
               o.incidentId === incidentId
-                ? { ...o, info: { ...o.info, ...info } }
+                ? { ...o, updatedAt, info: { ...o.info, ...info } }
                 : o,
             ),
           );
@@ -65,15 +68,20 @@ export function IncidentOverview() {
   return (
     <>
       <h1>My incidents</h1>
-      {incidents.map((incident) => (
-        <div key={incident.incidentId} id={incident.incidentId}>
-          {incident.info.title}{" "}
-          <IncidentPrioritySelect
-            incident={incident}
-            sendCommand={sendCommand}
-          />
-        </div>
-      ))}
+      {incidents
+        .toSorted(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        )
+        .map((incident) => (
+          <div key={incident.incidentId} id={incident.incidentId}>
+            {incident.info.title}{" "}
+            <IncidentPrioritySelect
+              incident={incident}
+              sendCommand={sendCommand}
+            />
+          </div>
+        ))}
       <h2>Create new incident</h2>
       <NewIncidentForm sendCommand={sendCommand} />
     </>
