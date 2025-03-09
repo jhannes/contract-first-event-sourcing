@@ -1,4 +1,4 @@
-openapi: 3.0.8
+openapi: 3.0.3
 info:
   title: My service
   description: My service
