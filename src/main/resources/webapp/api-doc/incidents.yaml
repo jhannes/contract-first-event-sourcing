@@ -66,11 +66,18 @@ components:
         incidentId:
           type: string
           format: uuid
-        title:
-          type: string
+        info:
+          $ref: "#/components/schemas/IncidentInfo"
       required:
         - incidentId
-        - title
+        - info
+
+    IncidentInfo:
+      properties:
+        title:
+          type: string
+        priority:
+          enum: [HIGH, MEDIUM, LOW]
 
     IncidentDelta:
       oneOf:
@@ -78,6 +85,6 @@ components:
 
     CreateIncidentDelta:
       properties:
-        title:
-          type: string
-      required: [title]
+        info:
+          $ref: "#/components/schemas/IncidentInfo"
+      required: [info]

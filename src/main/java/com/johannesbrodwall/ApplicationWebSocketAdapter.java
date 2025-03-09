@@ -10,6 +10,7 @@ import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
+import org.openapitools.client.model.IncidentInfo;
 import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentsSummaryList;
 import org.openapitools.client.model.MessageFromServer;
@@ -35,8 +36,10 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
 
     public ApplicationWebSocketAdapter() {
         var sampleData = new SampleModelData(-1);
-        incidents.put(UUID.randomUUID(), sampleData.sampleIncidentSummary().setTitle("Fire"));
-        incidents.put(UUID.randomUUID(), sampleData.sampleIncidentSummary().setTitle("Traffic accident"));
+        incidents.put(UUID.randomUUID(), sampleData.sampleIncidentSummary()
+                .setInfo(new IncidentInfo().setTitle("Fire")));
+        incidents.put(UUID.randomUUID(), sampleData.sampleIncidentSummary()
+                .setInfo(new IncidentInfo().setTitle("Traffic accident")));
     }
 
     @Override

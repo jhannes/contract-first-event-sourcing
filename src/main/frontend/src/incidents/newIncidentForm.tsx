@@ -14,7 +14,7 @@ export function NewIncidentForm({
     e.preventDefault();
     sendCommand({
       incidentId,
-      delta: { title },
+      delta: { info: { title } },
     });
     setIncidentId(uuidv4());
     setTitle("");

@@ -35,10 +35,10 @@ export function IncidentOverview() {
       setIncidents(message.incidents);
     } else if ("delta" in message) {
       const {
-        delta: { title },
+        delta: { info },
         incidentId,
       } = message;
-      setIncidents((old) => [...old, { title, incidentId }]);
+      setIncidents((old) => [...old, { info, incidentId }]);
     }
   }
 
@@ -47,7 +47,7 @@ export function IncidentOverview() {
   return (
     <>
       <h1>My incidents</h1>
-      {incidents.map(({ incidentId, title }) => (
+      {incidents.map(({ incidentId, info: { title } }) => (
         <div key={incidentId} id={incidentId}>
           {title}
         </div>
