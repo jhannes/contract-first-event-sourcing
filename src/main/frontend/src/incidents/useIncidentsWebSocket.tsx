@@ -8,7 +8,21 @@ import {
 import { useApplicationWebSocket } from "./useApplicationWebSocket";
 
 export function useIncidentsWebSocket() {
-  const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
+  const [incidents, setIncidents] = useState<
+    (IncidentSummary | IncidentSnapshot)[]
+  >([]);
+
+  function updateIncident(
+    incidentId: string,
+    updatedAt: Date,
+    fn: (o: IncidentSummary | IncidentSnapshot) => Partial<IncidentSnapshot>,
+  ): void {
+    setIncidents((old) =>
+      old.map((o) =>
+        o.incidentId === incidentId ? { ...o, ...fn(o), updatedAt } : o,
+      ),
+    );
+  }
 
   function handleMessage(message: MessageFromServer) {
     if ("incidents" in message) {
@@ -26,13 +40,19 @@ export function useIncidentsWebSocket() {
         }
         case "UpdateIncidentDelta": {
           const { info } = delta;
-          setIncidents((old) =>
-            old.map((o) =>
-              o.incidentId === incidentId
-                ? { ...o, updatedAt, info: { ...o.info, ...info } }
-                : o,
-            ),
-          );
+          updateIncident(incidentId, updatedAt, (o) => ({
+            info: { ...o.info, info },
+          }));
+          return;
+        }
+        case "AddInvolvedPersonToIncident": {
+          const { personId, info } = delta;
+          updateIncident(incidentId, updatedAt, (o) => ({
+            persons: {
+              ...("persons" in o ? o.persons : {}),
+              [personId]: info,
+            },
+          }));
         }
         default: {
           const error: string = delta.delta;
