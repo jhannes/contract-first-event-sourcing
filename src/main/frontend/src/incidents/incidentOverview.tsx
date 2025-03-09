@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { IncidentCommand, IncidentSummary, MessageFromServer } from "./model";
 import { NewIncidentForm } from "./newIncidentForm";
+import { IncidentPrioritySelect } from "./incidentPrioritySelect";
 
 function useApplicationWebSocket({
   handleMessage,
@@ -47,9 +48,13 @@ export function IncidentOverview() {
   return (
     <>
       <h1>My incidents</h1>
-      {incidents.map(({ incidentId, info: { title } }) => (
-        <div key={incidentId} id={incidentId}>
-          {title}
+      {incidents.map((incident) => (
+        <div key={incident.incidentId} id={incident.incidentId}>
+          {incident.info.title}{" "}
+          <IncidentPrioritySelect
+            incident={incident}
+            sendCommand={sendCommand}
+          />
         </div>
       ))}
       <h2>Create new incident</h2>
