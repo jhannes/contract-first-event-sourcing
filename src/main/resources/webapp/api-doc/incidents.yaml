@@ -63,13 +63,13 @@ components:
 
     IncidentSummary:
       properties:
-        id:
+        incidentId:
           type: string
           format: uuid
         title:
           type: string
       required:
-        - id
+        - incidentId
         - title
 
     IncidentDelta:
