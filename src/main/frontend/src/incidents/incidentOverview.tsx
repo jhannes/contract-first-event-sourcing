@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { IncidentsSummaryList, IncidentSummary } from "./model";
+import { NewIncidentForm } from "./newIncidentForm";
 
 export function IncidentOverview() {
   const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
@@ -20,16 +21,7 @@ export function IncidentOverview() {
         </div>
       ))}
       <h2>Create new incident</h2>
-      <form>
-        <div>
-          <label>
-            Title: <input />
-          </label>
-        </div>
-        <div>
-          <button>Submit</button>
-        </div>
-      </form>
+      <NewIncidentForm />
     </>
   );
 }
