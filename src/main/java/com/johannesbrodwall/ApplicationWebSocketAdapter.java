@@ -21,6 +21,7 @@ import org.openapitools.client.model.MessageToServer;
 import org.openapitools.client.model.UpdateIncidentDelta;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,6 +105,7 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
             @Override
             public void onWebSocketConnect(Session sess) {
                 super.onWebSocketConnect(sess);
+                sess.setIdleTimeout(Duration.ofHours(1));
                 sess.getRemote().sendString(mapper.writeValueAsString(new IncidentsSummaryList().setIncidents(
                         new ArrayList<>(incidents.values())
                 )));

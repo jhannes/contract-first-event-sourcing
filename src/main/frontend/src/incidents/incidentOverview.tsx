@@ -1,70 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { IncidentCommand, IncidentSummary, MessageFromServer } from "./model";
+import React from "react";
 import { NewIncidentForm } from "./newIncidentForm";
 import { IncidentPrioritySelect } from "./incidentPrioritySelect";
+import { Link } from "react-router";
+import { IncidentCommand, IncidentSummary } from "./model";
 
-function useApplicationWebSocket({
-  handleMessage,
+export function IncidentOverview({
+  incidents,
+  sendCommand,
 }: {
-  handleMessage: (message: MessageFromServer) => void;
+  incidents: IncidentSummary[];
+  sendCommand: (command: IncidentCommand) => void;
 }) {
-  const [websocket, setWebsocket] = useState<WebSocket>();
-
-  function sendCommand(command: IncidentCommand) {
-    websocket?.send(JSON.stringify(command));
-  }
-
-  useEffect(() => {
-    const ws = new WebSocket("/ws");
-    ws.onopen = () => {
-      setWebsocket(ws);
-    };
-    ws.onmessage = (message) => {
-      const msg = JSON.parse(message.data) as MessageFromServer;
-      handleMessage(msg);
-    };
-  }, []);
-
-  return { sendCommand };
-}
-
-export function IncidentOverview() {
-  const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
-
-  function handleMessage(message: MessageFromServer) {
-    if ("incidents" in message) {
-      setIncidents(message.incidents);
-    } else if ("delta" in message) {
-      const { incidentId, eventTime: updatedAt, delta } = message;
-      switch (delta.delta) {
-        case "CreateIncidentDelta": {
-          const { info } = delta;
-          setIncidents((old) => [
-            ...old,
-            { info, createdAt: updatedAt, updatedAt, incidentId },
-          ]);
-          return;
-        }
-        case "UpdateIncidentDelta": {
-          const { info } = delta;
-          setIncidents((old) =>
-            old.map((o) =>
-              o.incidentId === incidentId
-                ? { ...o, updatedAt, info: { ...o.info, ...info } }
-                : o,
-            ),
-          );
-        }
-        default: {
-          const error: string = delta.delta;
-          console.error("Unknown delta ", error);
-        }
-      }
-    }
-  }
-
-  const { sendCommand } = useApplicationWebSocket({ handleMessage });
-
   return (
     <>
       <h1>My incidents</h1>
@@ -75,7 +21,9 @@ export function IncidentOverview() {
         )
         .map((incident) => (
           <div key={incident.incidentId} id={incident.incidentId}>
-            {incident.info.title}{" "}
+            <Link to={"/incidents/" + incident.incidentId}>
+              {incident.info.title}
+            </Link>{" "}
             <IncidentPrioritySelect
               incident={incident}
               sendCommand={sendCommand}
