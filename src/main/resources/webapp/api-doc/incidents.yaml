@@ -12,16 +12,46 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessagesFromServer"
+                $ref: "#/components/schemas/MessageFromServer"
 components:
   schemas:
     MessageFromServer:
       oneOf:
-        - $ref: "#/components/schemas/IncidentsSnapshotList"
-        - $ref: "#/components/schemas/RemoveIncidentSignal"
+        - $ref: "#/components/schemas/IncidentsSummaryList"
         - $ref: "#/components/schemas/IncidentEvent"
+
+    IncidentEvent:
+      properties:
+        incidentId:
+          type: string
+          format: uuid
 
     MessageSummary:
       properties:
         messageText:
           type: string
+
+    IncidentsSummaryList:
+      properties:
+        lastTimestamp:
+          type: integer
+          format: int32
+        replaceList:
+          type: boolean
+          default: false
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentSummary"
+      required: [incidents]
+
+    IncidentSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+      required:
+        - id
+        - title
