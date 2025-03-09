@@ -4,25 +4,21 @@ import { IncidentOverview } from "./incidents/incidentOverview";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { IncidentSnapshot } from "./incidents/incidentSnapshot";
 import { useIncidentsWebSocket } from "./incidents/useIncidentsWebSocket";
+import { IncidentContext } from "./incidents/incidentContext";
 
 function Application() {
   const { incidents, sendCommand } = useIncidentsWebSocket();
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path={"/incidents/:incidentId"}
-          element={
-            <IncidentSnapshot incidents={incidents} sendCommand={sendCommand} />
-          }
-        />
-        <Route
-          path={"*"}
-          element={
-            <IncidentOverview incidents={incidents} sendCommand={sendCommand} />
-          }
-        />
-      </Routes>
+      <IncidentContext value={{ incidents, sendCommand }}>
+        <Routes>
+          <Route
+            path={"/incidents/:incidentId"}
+            element={<IncidentSnapshot />}
+          />
+          <Route path={"*"} element={<IncidentOverview />} />
+        </Routes>
+      </IncidentContext>
     </BrowserRouter>
   );
 }

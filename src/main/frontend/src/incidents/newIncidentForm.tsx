@@ -1,12 +1,9 @@
-import React, { FormEvent, useState } from "react";
-import { IncidentCommand } from "./model";
+import React, { FormEvent, useContext, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { IncidentContext } from "./incidentContext";
 
-export function NewIncidentForm({
-  sendCommand,
-}: {
-  sendCommand(command: IncidentCommand): void;
-}) {
+export function NewIncidentForm() {
+  const { sendCommand } = useContext(IncidentContext);
   const [title, setTitle] = useState("");
   const [incidentId, setIncidentId] = useState(uuidv4());
 

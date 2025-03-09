@@ -1,17 +1,14 @@
-import {
-  IncidentCommand,
-  IncidentInfoPriorityEnum,
-  IncidentSummary,
-} from "./model";
-import React from "react";
+import { IncidentInfoPriorityEnum, IncidentSummary } from "./model";
+import React, { useContext } from "react";
+import { IncidentContext } from "./incidentContext";
 
 export function IncidentPrioritySelect({
   incident: { info, incidentId },
-  sendCommand,
 }: {
   incident: IncidentSummary;
-  sendCommand: (command: IncidentCommand) => void;
 }) {
+  const { sendCommand } = useContext(IncidentContext);
+
   function setPriority(priority: IncidentInfoPriorityEnum | "") {
     if (priority) {
       sendCommand({

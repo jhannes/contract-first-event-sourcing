@@ -1,16 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { NewIncidentForm } from "./newIncidentForm";
 import { IncidentPrioritySelect } from "./incidentPrioritySelect";
 import { Link } from "react-router";
-import { IncidentCommand, IncidentSummary } from "./model";
+import { IncidentContext } from "./incidentContext";
 
-export function IncidentOverview({
-  incidents,
-  sendCommand,
-}: {
-  incidents: IncidentSummary[];
-  sendCommand: (command: IncidentCommand) => void;
-}) {
+export function IncidentOverview() {
+  const { incidents } = useContext(IncidentContext);
   return (
     <>
       <h1>My incidents</h1>
@@ -24,14 +19,11 @@ export function IncidentOverview({
             <Link to={"/incidents/" + incident.incidentId}>
               {incident.info.title}
             </Link>{" "}
-            <IncidentPrioritySelect
-              incident={incident}
-              sendCommand={sendCommand}
-            />
+            <IncidentPrioritySelect incident={incident} />
           </div>
         ))}
       <h2>Create new incident</h2>
-      <NewIncidentForm sendCommand={sendCommand} />
+      <NewIncidentForm />
     </>
   );
 }

@@ -1,6 +1,7 @@
-import React from "react";
-import { IncidentCommand, IncidentSummary } from "./model";
+import React, { useContext } from "react";
+import { IncidentSummary } from "./model";
 import { useParams } from "react-router";
+import { IncidentContext } from "./incidentContext";
 
 function IncidentSnapshotView({ incident }: { incident: IncidentSummary }) {
   return (
@@ -11,14 +12,9 @@ function IncidentSnapshotView({ incident }: { incident: IncidentSummary }) {
   );
 }
 
-export function IncidentSnapshot({
-  incidents,
-  sendCommand,
-}: {
-  incidents: IncidentSummary[];
-  sendCommand: (command: IncidentCommand) => void;
-}) {
+export function IncidentSnapshot() {
   const { incidentId } = useParams();
+  const { incidents } = useContext(IncidentContext);
   const incident = incidents.find((o) => o.incidentId === incidentId);
   if (!incident) {
     return <h2>Missing incident {incidentId}</h2>;
