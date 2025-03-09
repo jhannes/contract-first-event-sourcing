@@ -12,6 +12,7 @@ export function IncidentPrioritySelect({
   function setPriority(priority: IncidentInfoPriorityEnum | "") {
     if (priority) {
       sendCommand({
+        command: "IncidentCommand",
         incidentId,
         eventTime: new Date(),
         delta: { delta: "UpdateIncidentDelta", info: { priority } },

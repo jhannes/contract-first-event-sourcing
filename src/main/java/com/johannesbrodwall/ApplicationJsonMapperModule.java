@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 class ApplicationJsonMapperModule extends SimpleModule {
     {
-        addInterfaceDeserializer(MessageToServer.class, _ -> IncidentCommand.class);
+        addInterfaceDeserializer(MessageToServer.class, o -> MessageToServer.getType(o.get("command").asText()));
         addInterfaceDeserializer(IncidentDelta.class, o -> IncidentDelta.getType(o.get("delta").asText()));
     }
 

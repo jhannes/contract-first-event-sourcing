@@ -20,12 +20,12 @@ import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentsSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
+import org.openapitools.client.model.SubscribeToIncidentSnapshot;
 import org.openapitools.client.model.UpdateIncidentDelta;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -88,6 +88,8 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
             }
 
             broadcastMessage(new IncidentEvent().setTimestamp(System.currentTimeMillis()).putAll(command));
+        } else {
+            log.warn("Unknown message type {}", messageToServer.getClass().getName());
         }
     }
 
@@ -124,7 +126,13 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
             public void onWebSocketText(String message) {
                 var messageToServer = mapper.readValue(message, MessageToServer.class);
                 log.info(messageToServer.toString());
-                handleMessageToServer(messageToServer);
+                if (messageToServer instanceof IncidentCommand) {
+                    handleMessageToServer(messageToServer);
+                } else if (messageToServer instanceof SubscribeToIncidentSnapshot subscribe) {
+                    getRemote().sendString(mapper.writeValueAsString(incidents.get(subscribe.getIncidentId())));
+                } else {
+                    log.warn("Unknown message type {}", messageToServer.getClass().getName());
+                }
             }
 
             @Override

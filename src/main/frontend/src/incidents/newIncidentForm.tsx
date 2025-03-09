@@ -10,6 +10,7 @@ export function NewIncidentForm() {
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     sendCommand({
+      command: "IncidentCommand",
       incidentId,
       eventTime: new Date(),
       delta: { delta: "CreateIncidentDelta", info: { title } },

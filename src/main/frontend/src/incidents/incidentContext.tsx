@@ -1,9 +1,9 @@
 import React from "react";
-import { IncidentCommand, IncidentSummary } from "./model";
+import { MessageToServer, IncidentSummary } from "./model";
 
 export const IncidentContext = React.createContext<{
   incidents: IncidentSummary[];
-  sendCommand(command: IncidentCommand): void;
+  sendCommand(command: MessageToServer): void;
 }>({
   incidents: [],
   sendCommand: () => {},

@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { IncidentCommand, IncidentSummary, MessageFromServer } from "./model";
+import {
+  MessageToServer,
+  IncidentSummary,
+  MessageFromServer,
+  IncidentSnapshot,
+} from "./model";
 import { useApplicationWebSocket } from "./useApplicationWebSocket";
 
 export function useIncidentsWebSocket() {
@@ -34,12 +39,19 @@ export function useIncidentsWebSocket() {
           console.error("Unknown delta ", error);
         }
       }
+    } else if ("incidentId" in message) {
+      const incidentSnapshot = message as IncidentSnapshot;
+      setIncidents((old) =>
+        old.map((o) =>
+          o.incidentId === incidentSnapshot.incidentId ? incidentSnapshot : o,
+        ),
+      );
     }
   }
 
   const { sendCommand } = useApplicationWebSocket<
     MessageFromServer,
-    IncidentCommand
+    MessageToServer
   >({ handleMessage });
   return { sendCommand, incidents };
 }

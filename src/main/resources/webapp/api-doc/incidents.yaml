@@ -18,6 +18,9 @@ components:
     MessageToServer:
       oneOf:
         - $ref: "#/components/schemas/IncidentCommand"
+        - $ref: "#/components/schemas/SubscribeToIncidentSnapshot"
+      discriminator:
+        propertyName: command
     MessageFromServer:
       oneOf:
         - $ref: "#/components/schemas/IncidentsSummaryList"
@@ -129,3 +132,7 @@ components:
           format: uuid
         info: { $ref: "#/components/schemas/InvolvedPersonInfo" }
       required: [personId, info]
+
+    SubscribeToIncidentSnapshot:
+      properties: { incidentId: { type: string, format: uuid } }
+      required: [incidentId]

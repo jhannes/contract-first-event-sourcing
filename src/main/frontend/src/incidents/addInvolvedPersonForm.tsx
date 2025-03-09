@@ -18,6 +18,7 @@ export function AddInvolvedPersonForm({ incidentId }: { incidentId: any }) {
     event.preventDefault();
     if (!role) return;
     sendCommand({
+      command: "IncidentCommand",
       incidentId,
       eventTime: new Date(),
       delta: {
@@ -29,40 +30,34 @@ export function AddInvolvedPersonForm({ incidentId }: { incidentId: any }) {
   }
 
   return (
-    <>
-      <h3>Add involved person</h3>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <select
-            value={role}
-            onChange={(e) =>
-              setRole(e.target.value as InvolvedPersonInfoRoleEnum)
-            }
-          >
-            <option value="">---</option>
-            {InvolvedPersonInfoRoleEnumValues.map((v) => (
-              <option key={v}>{v}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          First name:{" "}
-          <input
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-        </div>
-        <div>
-          Last name:{" "}
-          <input
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-        </div>
-        <div>
-          <button disabled={!role}>Submit</button>
-        </div>
-      </form>
-    </>
+    <form onSubmit={handleSubmit}>
+      <div>
+        <select
+          value={role}
+          onChange={(e) =>
+            setRole(e.target.value as InvolvedPersonInfoRoleEnum)
+          }
+        >
+          <option value="">---</option>
+          {InvolvedPersonInfoRoleEnumValues.map((v) => (
+            <option key={v}>{v}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        First name:{" "}
+        <input
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
+      </div>
+      <div>
+        Last name:{" "}
+        <input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+      </div>
+      <div>
+        <button disabled={!role}>Submit</button>
+      </div>
+    </form>
   );
 }
