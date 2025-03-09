@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.8
 info:
   title: My service
   description: My service
@@ -21,6 +21,7 @@ components:
     MessageFromServer:
       oneOf:
         - $ref: "#/components/schemas/IncidentsSummaryList"
+        - $ref: "#/components/schemas/IncidentSnapshot"
         - $ref: "#/components/schemas/IncidentEvent"
 
     IncidentCommand:
@@ -78,6 +79,15 @@ components:
         info:
           $ref: "#/components/schemas/IncidentInfo"
       required: [createdAt, updatedAt, incidentId, info]
+
+    IncidentSnapshot:
+      allOf:
+        - $ref: "#/components/schemas/IncidentSummary"
+        - properties:
+            persons:
+              additionalProperties:
+                $ref: "#/components/schemas/InvolvedPersonInfo"
+          required: [persons]
 
     IncidentInfo:
       properties:

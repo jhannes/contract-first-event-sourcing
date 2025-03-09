@@ -10,10 +10,12 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.openapitools.client.model.AddInvolvedPersonToIncident;
 import org.openapitools.client.model.CreateIncidentDelta;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
 import org.openapitools.client.model.IncidentInfo;
+import org.openapitools.client.model.IncidentSnapshot;
 import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentsSummaryList;
 import org.openapitools.client.model.MessageFromServer;
@@ -37,7 +39,7 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
             .registerModule(new JavaTimeModule())
             .registerModule(new ApplicationJsonMapperModule());
 
-    private final Map<UUID, IncidentSummary> incidents = new HashMap<>();
+    private final Map<UUID, IncidentSnapshot> incidents = new HashMap<>();
 
     private final Set<WebSocketAdapter> connectedClients = new HashSet<>();
 
@@ -77,6 +79,10 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
                 incidents.get(command.getIncidentId())
                         .setUpdatedAt(command.getEventTime())
                         .getInfo().putAll(update.getInfo());
+            } else if (command.getDelta() instanceof AddInvolvedPersonToIncident addPerson) {
+                incidents.get(command.getIncidentId())
+                        .setUpdatedAt(command.getEventTime())
+                        .getPersons().put(addPerson.getPersonId().toString(), addPerson.getInfo());
             } else {
                 log.warn("Unknown event type {}", command.getDelta().getClass().getName());
             }
@@ -86,7 +92,7 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
     }
 
     private void addIncident(IncidentSummary incident) {
-        incidents.put(incident.getIncidentId(), incident);
+        incidents.put(incident.getIncidentId(), new IncidentSnapshot().putAll(incident));
     }
 
     @SneakyThrows
@@ -109,7 +115,7 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
                 super.onWebSocketConnect(sess);
                 sess.setIdleTimeout(Duration.ofHours(1));
                 sess.getRemote().sendString(mapper.writeValueAsString(new IncidentsSummaryList().setIncidents(
-                        new ArrayList<>(incidents.values())
+                        incidents.values().stream().map(o -> new IncidentSummary().putAll(o)).toList()
                 )));
             }
 
