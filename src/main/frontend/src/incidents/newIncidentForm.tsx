@@ -5,21 +5,20 @@ import { IncidentContext } from "./incidentContext";
 export function NewIncidentForm() {
   const { sendMessage } = useContext(IncidentContext);
   const [title, setTitle] = useState("");
-  const [incidentId, setIncidentId] = useState(uuidv4());
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     sendMessage({
       type: "IncidentCommand",
-      incidentId,
+      incidentId: uuidv4(),
       eventTime: new Date(),
-      delta: { title },
+      delta: { delta: "CreateIncident", info: { title } },
     });
     setTitle("");
   }
 
   return (
-    <form onSubmit={handleSubmit} key={incidentId}>
+    <form onSubmit={handleSubmit}>
       <div>
         <label>
           Title:{" "}

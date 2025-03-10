@@ -51,12 +51,18 @@ components:
     IncidentDelta:
       oneOf:
         - $ref: "#/components/schemas/CreateIncident"
+        - $ref: "#/components/schemas/UpdateIncident"
+      discriminator:
+        propertyName: delta
 
     CreateIncident:
       properties:
-        title:
-          type: string
-      required: [title]
+        info: { $ref: "#/components/schemas/IncidentInfo" }
+      required: [info]
+    UpdateIncident:
+      properties:
+        info: { $ref: "#/components/schemas/IncidentInfo" }
+      required: [info]
 
     IncidentSummaryList:
       properties:
@@ -74,6 +80,13 @@ components:
         incidentId:
           type: string
           format: uuid
+        info:
+          $ref: "#/components/schemas/IncidentInfo"
+      required: [incidentId, info]
+
+    IncidentInfo:
+      properties:
         title:
           type: string
-      required: [incidentId, title]
+        priority:
+          enum: [HIGH, MEDIUM, LOW]

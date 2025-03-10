@@ -1,9 +1,6 @@
 package com.johannesbrodwall;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.websocket.api.Session;
@@ -19,6 +16,7 @@ import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
+import org.openapitools.client.model.UpdateIncident;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +27,7 @@ import java.util.UUID;
 
 @Slf4j
 public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
-    private final ObjectMapper mapper = new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
-            .registerModule(new ApplicationJsonMapperModule())
-            .registerModule(new JavaTimeModule())
-            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    private final ObjectMapper mapper = new ApplicationObjectMapper();
 
     private final Set<ApplicationWebSocketAdapter> connectedClients = new HashSet<>();
     private final HashMap<UUID, IncidentSummary> incidents = new HashMap<>();
@@ -56,8 +50,10 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         if (messageToServer instanceof IncidentCommand command) {
             timestamp = System.currentTimeMillis();
             var event = new IncidentEvent().setTimestamp(timestamp).putAll(command);
-            if (event.getDelta() instanceof CreateIncident create) {
-                incidents.put(event.getIncidentId(), new IncidentSummary().setIncidentId(event.getIncidentId()).setTitle(create.getTitle()));
+            switch (event.getDelta()) {
+                case CreateIncident create ->
+                        incidents.put(event.getIncidentId(), new IncidentSummary().setIncidentId(event.getIncidentId()).setInfo(create.getInfo()));
+                case UpdateIncident update -> incidents.get(event.getIncidentId()).getInfo().putAll(update.getInfo());
             }
             broadcastMessage(event);
         }

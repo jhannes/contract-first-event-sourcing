@@ -7,11 +7,33 @@ export function useIncidentsWebSocket() {
 
   function handleMessage(message: MessageFromServer) {
     if ("delta" in message) {
-      const {
-        incidentId,
-        delta: { title },
-      } = message;
-      setIncidents((old) => [...old, { incidentId, title }]);
+      switch (message.delta.delta) {
+        case "CreateIncident": {
+          const {
+            incidentId,
+            delta: { info },
+          } = message;
+          setIncidents((old) => [...old, { incidentId, info }]);
+          return;
+        }
+        case "UpdateIncident": {
+          const {
+            incidentId,
+            delta: { info },
+          } = message;
+          setIncidents((old) =>
+            old.map((o) =>
+              o.incidentId === incidentId
+                ? { ...o, info: { ...o.info, ...info } }
+                : o,
+            ),
+          );
+          return;
+        }
+        default:
+          const noMatch: never = message.delta;
+          console.error(`Invalid command ${JSON.stringify(noMatch)}`);
+      }
     } else if ("incidents" in message) {
       setIncidents(message.incidents);
     }
