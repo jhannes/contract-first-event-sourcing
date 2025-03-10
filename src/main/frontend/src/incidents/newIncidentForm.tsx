@@ -3,13 +3,13 @@ import { v4 as uuidv4 } from "uuid";
 import { IncidentContext } from "./incidentContext";
 
 export function NewIncidentForm() {
-  const { sendCommand } = useContext(IncidentContext);
+  const { sendMessage } = useContext(IncidentContext);
   const [title, setTitle] = useState("");
   const [incidentId, setIncidentId] = useState(uuidv4());
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    sendCommand({
+    sendMessage({
       command: "IncidentCommand",
       incidentId,
       eventTime: new Date(),

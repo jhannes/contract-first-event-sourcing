@@ -8,16 +8,16 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 export function AddInvolvedPersonForm({ incidentId }: { incidentId: any }) {
-  const { sendCommand } = useContext(IncidentContext);
+  const { sendMessage } = useContext(IncidentContext);
   const [role, setRole] = useState<InvolvedPersonInfoRoleEnum | "">("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [personId, setPersonId] = useState(uuidv4());
+  const [personId] = useState(uuidv4());
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     if (!role) return;
-    sendCommand({
+    sendMessage({
       command: "IncidentCommand",
       incidentId,
       eventTime: new Date(),

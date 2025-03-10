@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export function useApplicationWebSocket<FROM_SERVER, TO_SERVER>({
+export function useWebSocket<FROM_SERVER, TO_SERVER>({
   handleMessage,
   url,
 }: {

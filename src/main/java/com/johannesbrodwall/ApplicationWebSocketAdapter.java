@@ -24,7 +24,6 @@ import org.openapitools.client.model.SubscribeToIncidentSnapshot;
 import org.openapitools.client.model.UpdateIncidentDelta;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,23 +67,20 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
         }
 
         if (messageToServer instanceof IncidentCommand command) {
-            if (command.getDelta() instanceof CreateIncidentDelta create) {
-                addIncident(new IncidentSummary()
+            switch (command.getDelta()) {
+                case CreateIncidentDelta create -> addIncident(new IncidentSummary()
                         .setCreatedAt(command.getEventTime())
                         .setUpdatedAt(command.getEventTime())
                         .setIncidentId(command.getIncidentId())
                         .setInfo(create.getInfo())
                 );
-            } else if (command.getDelta() instanceof UpdateIncidentDelta update) {
-                incidents.get(command.getIncidentId())
+                case UpdateIncidentDelta update -> incidents.get(command.getIncidentId())
                         .setUpdatedAt(command.getEventTime())
                         .getInfo().putAll(update.getInfo());
-            } else if (command.getDelta() instanceof AddInvolvedPersonToIncident addPerson) {
-                incidents.get(command.getIncidentId())
+                case AddInvolvedPersonToIncident addPerson -> incidents.get(command.getIncidentId())
                         .setUpdatedAt(command.getEventTime())
                         .getPersons().put(addPerson.getPersonId().toString(), addPerson.getInfo());
-            } else {
-                log.warn("Unknown event type {}", command.getDelta().getClass().getName());
+                case null, default -> log.warn("Unknown event type {}", command.getDelta().getClass().getName());
             }
 
             broadcastMessage(new IncidentEvent().setTimestamp(System.currentTimeMillis()).putAll(command));

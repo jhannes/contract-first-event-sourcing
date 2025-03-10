@@ -7,11 +7,11 @@ export function IncidentPrioritySelect({
 }: {
   incident: IncidentSummary;
 }) {
-  const { sendCommand } = useContext(IncidentContext);
+  const { sendMessage } = useContext(IncidentContext);
 
   function setPriority(priority: IncidentInfoPriorityEnum | "") {
     if (priority) {
-      sendCommand({
+      sendMessage({
         command: "IncidentCommand",
         incidentId,
         eventTime: new Date(),

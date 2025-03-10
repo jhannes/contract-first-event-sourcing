@@ -1,4 +1,4 @@
-package com.johannesbrodwall;
+package com.johannesbrodwall.infrastructure;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
