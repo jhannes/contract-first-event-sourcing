@@ -7,9 +7,9 @@ export function useIncidentsWebSocket() {
 
   function handleMessage(message: MessageFromServer) {}
 
-  const { sendCommand, isConnected } = useWebSocket({
+  const { sendMessage, isConnected } = useWebSocket({
     handleMessage,
     url: "/ws",
   });
-  return { sendCommand, incidents, isConnected };
+  return { sendMessage, incidents, isConnected };
 }

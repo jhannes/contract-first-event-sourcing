@@ -7,11 +7,11 @@ import { useIncidentsWebSocket } from "./incidents/useIncidentsWebSocket";
 import { IncidentContext } from "./incidents/incidentContext";
 
 function Application() {
-  const { incidents, sendCommand, isConnected } = useIncidentsWebSocket();
+  const { incidents, sendMessage, isConnected } = useIncidentsWebSocket();
   return (
     <BrowserRouter>
       {isConnected || <div>Disconnected</div>}
-      <IncidentContext value={{ sendMessage: sendCommand, isConnected }}>
+      <IncidentContext value={{ sendMessage, isConnected }}>
         <Routes>
           <Route
             path={"/incidents/:incidentId"}

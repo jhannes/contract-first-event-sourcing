@@ -16,7 +16,7 @@ public class EventSourcingServer {
         handler.addServlet(new ServletHolder(new WebjarServlet("swagger-ui")), "/api-doc/swagger-ui/*");
         handler.addServlet(new ServletHolder(new ContentServlet()), "/*");
         handler.addServletContainerInitializer(new JettyWebSocketServletContainerInitializer(
-                (_, container) -> container.addMapping("/ws", new ApplicationWebSocketAdapter())));
+                (_, container) -> container.addMapping("/ws", new ApplicationWebSocketCreator())));
         server.setHandler(handler);
     }
 
