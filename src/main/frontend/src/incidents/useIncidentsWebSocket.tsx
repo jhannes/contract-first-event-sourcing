@@ -6,11 +6,15 @@ export function useIncidentsWebSocket() {
   const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
 
   function handleMessage(message: MessageFromServer) {
-    const {
-      incidentId,
-      delta: { title },
-    } = message;
-    setIncidents((old) => [...old, { incidentId, title }]);
+    if ("delta" in message) {
+      const {
+        incidentId,
+        delta: { title },
+      } = message;
+      setIncidents((old) => [...old, { incidentId, title }]);
+    } else if ("incidents" in message) {
+      setIncidents(message.incidents);
+    }
   }
 
   const { sendMessage, isConnected } = useWebSocket({
