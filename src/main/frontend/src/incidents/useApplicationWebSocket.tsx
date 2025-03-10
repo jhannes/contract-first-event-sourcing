@@ -1,26 +1,48 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useApplicationWebSocket<FROM_SERVER, TO_SERVER>({
   handleMessage,
+  url,
 }: {
   handleMessage: (message: FROM_SERVER) => void;
+  url: string;
 }) {
-  const [websocket, setWebsocket] = useState<WebSocket>();
+  const [isConnected, setIsConnected] = useState(false);
+  const websocketRef = useRef<WebSocket | null>(null);
+  const reconnectTimerRef = useRef<number | null>(null);
 
   function sendCommand(command: TO_SERVER) {
-    websocket?.send(JSON.stringify(command));
+    websocketRef.current?.send(JSON.stringify(command));
   }
+  const connect = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+    }
 
-  useEffect(() => {
-    const ws = new WebSocket("/ws");
+    const ws = new WebSocket(url);
     ws.onopen = () => {
-      setWebsocket(ws);
+      websocketRef.current = ws;
+      setIsConnected(true);
     };
     ws.onmessage = (message) => {
       const msg = JSON.parse(message.data) as FROM_SERVER;
       handleMessage(msg);
     };
-  }, []);
+    ws.onclose = () => {
+      reconnectTimerRef.current = setTimeout(() => {
+        setIsConnected(false);
+        connect();
+      }, 2000);
+    };
+  }, [url]);
 
-  return { sendCommand };
+  useEffect(() => {
+    connect();
+    return () => {
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      websocketRef.current?.close();
+    };
+  }, [connect]);
+
+  return { sendCommand, isConnected };
 }

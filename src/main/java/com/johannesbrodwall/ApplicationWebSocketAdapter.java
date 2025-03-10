@@ -115,7 +115,6 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
             @Override
             public void onWebSocketConnect(Session sess) {
                 super.onWebSocketConnect(sess);
-                sess.setIdleTimeout(Duration.ofHours(1));
                 sess.getRemote().sendString(mapper.writeValueAsString(new IncidentsSummaryList().setIncidents(
                         incidents.values().stream().map(o -> new IncidentSummary().putAll(o)).toList()
                 )));

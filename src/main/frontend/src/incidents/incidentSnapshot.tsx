@@ -35,12 +35,12 @@ function IncidentSnapshotView({ incident }: { incident: IncidentSnapshot }) {
 
 export function IncidentSnapshot() {
   const { incidentId } = useParams();
-  const { incidents, sendCommand } = useContext(IncidentContext);
+  const { incidents, sendCommand, isConnected } = useContext(IncidentContext);
   useEffect(() => {
     if (incidentId) {
       sendCommand({ command: "SubscribeToIncidentSnapshot", incidentId });
     }
-  }, [incidentId]);
+  }, [incidentId, isConnected]);
   const incident = incidents.find((o) => o.incidentId === incidentId);
   if (!incident) {
     return <h2>Missing incident {incidentId}</h2>;

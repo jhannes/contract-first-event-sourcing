@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  MessageToServer,
-  IncidentSummary,
-  MessageFromServer,
-  IncidentSnapshot,
-} from "./model";
+import { IncidentSnapshot, IncidentSummary, MessageFromServer } from "./model";
 import { useApplicationWebSocket } from "./useApplicationWebSocket";
 
 export function useIncidentsWebSocket() {
@@ -69,9 +64,9 @@ export function useIncidentsWebSocket() {
     }
   }
 
-  const { sendCommand } = useApplicationWebSocket<
-    MessageFromServer,
-    MessageToServer
-  >({ handleMessage });
-  return { sendCommand, incidents };
+  const { sendCommand, isConnected } = useApplicationWebSocket({
+    handleMessage,
+    url: "/ws",
+  });
+  return { sendCommand, incidents, isConnected };
 }
