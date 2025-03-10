@@ -16,8 +16,31 @@ paths:
 components:
   schemas:
     MessageToServer:
-      oneOf: []
+      oneOf:
+        - $ref: "#/components/schemas/IncidentCommand"
       discriminator:
         propertyName: type
     MessageFromServer:
       oneOf: []
+
+    IncidentCommand:
+      properties:
+        incidentId:
+          type: string
+          format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        delta:
+          $ref: "#/components/schemas/IncidentDelta"
+      required: [incidentId, eventTime, delta]
+
+    IncidentDelta:
+      oneOf:
+        - $ref: "#/components/schemas/CreateIncident"
+
+    CreateIncident:
+      properties:
+        title:
+          type: string
+      required: [title]
