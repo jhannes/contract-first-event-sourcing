@@ -1,15 +1,21 @@
 import { useState } from "react";
-import { MessageFromServer } from "./model";
+import { IncidentSummary, MessageFromServer } from "./model";
 import { useWebSocket } from "../lib/useWebSocket";
 
 export function useIncidentsWebSocket() {
-  const [incidents, setIncidents] = useState<never[]>([]);
+  const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
 
-  function handleMessage(message: MessageFromServer) {}
+  function handleMessage(message: MessageFromServer) {
+    const {
+      incidentId,
+      delta: { title },
+    } = message;
+    setIncidents((old) => [...old, { incidentId, title }]);
+  }
 
-  const { sendCommand, isConnected } = useWebSocket({
+  const { sendMessage, isConnected } = useWebSocket({
     handleMessage,
     url: "/ws",
   });
-  return { sendCommand, incidents, isConnected };
+  return { sendMessage, incidents, isConnected };
 }

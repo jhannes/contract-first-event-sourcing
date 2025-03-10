@@ -15,6 +15,7 @@ export function NewIncidentForm() {
       eventTime: new Date(),
       delta: { title },
     });
+    setTitle("");
   }
 
   return (

@@ -9,6 +9,9 @@ export function IncidentOverview() {
   return (
     <>
       <h1>My incidents</h1>
+      {incidents.map((incident) => (
+        <div>{incident.title}</div>
+      ))}
       <h2>Create new incident</h2>
       <NewIncidentForm />
     </>

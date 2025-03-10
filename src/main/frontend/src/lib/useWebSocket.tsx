@@ -11,7 +11,7 @@ export function useWebSocket<FROM_SERVER, TO_SERVER>({
   const websocketRef = useRef<WebSocket | null>(null);
   const reconnectTimerRef = useRef<number | null>(null);
 
-  function sendCommand(command: TO_SERVER) {
+  function sendMessage(command: TO_SERVER) {
     websocketRef.current?.send(JSON.stringify(command));
   }
   const connect = useCallback(() => {
@@ -44,5 +44,5 @@ export function useWebSocket<FROM_SERVER, TO_SERVER>({
     };
   }, [connect]);
 
-  return { sendCommand, isConnected };
+  return { sendMessage, isConnected };
 }

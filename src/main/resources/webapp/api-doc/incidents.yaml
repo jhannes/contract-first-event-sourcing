@@ -56,3 +56,12 @@ components:
         title:
           type: string
       required: [title]
+
+    IncidentSummary:
+      properties:
+        incidentId:
+          type: string
+          format: uuid
+        title:
+          type: string
+      required: [incidentId, title]
