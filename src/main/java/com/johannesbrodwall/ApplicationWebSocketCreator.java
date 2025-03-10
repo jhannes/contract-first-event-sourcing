@@ -29,11 +29,11 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             .registerModule(new JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-    private final Set<WebSocketAdapter> connectedClients = new HashSet<>();
+    private final Set<ApplicationWebSocketAdapter> connectedClients = new HashSet<>();
 
     @Override
     public WebSocketAdapter createWebSocket(JettyServerUpgradeRequest req, JettyServerUpgradeResponse resp) {
-        var adapter = (WebSocketAdapter) new ApplicationWebSocketAdapter();
+        var adapter = new ApplicationWebSocketAdapter();
         connectedClients.add(adapter);
         return adapter;
     }
