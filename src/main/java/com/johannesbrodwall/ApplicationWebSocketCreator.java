@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
-public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
+public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
     private final ObjectMapper mapper = new ObjectMapper()
             .setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
             .registerModule(new ApplicationJsonMapperModule())
@@ -33,7 +33,7 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
 
     @Override
     public WebSocketAdapter createWebSocket(JettyServerUpgradeRequest req, JettyServerUpgradeResponse resp) {
-        var adapter = newWebSocketAdapter();
+        var adapter = (WebSocketAdapter) new ApplicationWebSocketAdapter();
         connectedClients.add(adapter);
         return adapter;
     }
@@ -65,35 +65,33 @@ public class ApplicationWebSocketAdapter implements JettyWebSocketCreator {
         }
     }
 
-    private WebSocketAdapter newWebSocketAdapter() {
-        return new WebSocketAdapter() {
-            @SneakyThrows
-            @Override
-            public void onWebSocketConnect(Session sess) {
-                super.onWebSocketConnect(sess);
-                log.info("connected");
-            }
+    private class ApplicationWebSocketAdapter extends WebSocketAdapter {
+        @SneakyThrows
+        @Override
+        public void onWebSocketConnect(Session sess) {
+            super.onWebSocketConnect(sess);
+            log.info("connected");
+        }
 
-            @SneakyThrows
-            @Override
-            public void onWebSocketText(String message) {
-                var messageToServer = mapper.readValue(message, MessageToServer.class);
-                handleMessageToServer(messageToServer);
-            }
+        @SneakyThrows
+        @Override
+        public void onWebSocketText(String message) {
+            var messageToServer = mapper.readValue(message, MessageToServer.class);
+            handleMessageToServer(messageToServer);
+        }
 
-            @Override
-            public void onWebSocketError(Throwable cause) {
-                if (cause instanceof WebSocketTimeoutException) {
-                    return;
-                }
-                log.error(cause.toString());
+        @Override
+        public void onWebSocketError(Throwable cause) {
+            if (cause instanceof WebSocketTimeoutException) {
+                return;
             }
+            log.error(cause.toString());
+        }
 
-            @Override
-            public void onWebSocketClose(int statusCode, String reason) {
-                super.onWebSocketClose(statusCode, reason);
-                connectedClients.remove(this);
-            }
-        };
+        @Override
+        public void onWebSocketClose(int statusCode, String reason) {
+            super.onWebSocketClose(statusCode, reason);
+            connectedClients.remove(this);
+        }
     }
 }
