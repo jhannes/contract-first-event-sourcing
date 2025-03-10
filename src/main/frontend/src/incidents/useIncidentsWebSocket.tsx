@@ -11,20 +11,28 @@ export function useIncidentsWebSocket() {
         case "CreateIncident": {
           const {
             incidentId,
+            eventTime,
             delta: { info },
           } = message;
-          setIncidents((old) => [...old, { incidentId, info }]);
+          const newIncident: IncidentSummary = {
+            incidentId,
+            createdAt: eventTime,
+            updatedAt: eventTime,
+            info,
+          };
+          setIncidents((old) => [...old, newIncident]);
           return;
         }
         case "UpdateIncident": {
           const {
             incidentId,
+            eventTime: updatedAt,
             delta: { info },
           } = message;
           setIncidents((old) =>
             old.map((o) =>
               o.incidentId === incidentId
-                ? { ...o, info: { ...o.info, ...info } }
+                ? { ...o, updatedAt, info: { ...o.info, ...info } }
                 : o,
             ),
           );

@@ -51,9 +51,14 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             timestamp = System.currentTimeMillis();
             var event = new IncidentEvent().setTimestamp(timestamp).putAll(command);
             switch (event.getDelta()) {
-                case CreateIncident create ->
-                        incidents.put(event.getIncidentId(), new IncidentSummary().setIncidentId(event.getIncidentId()).setInfo(create.getInfo()));
-                case UpdateIncident update -> incidents.get(event.getIncidentId()).getInfo().putAll(update.getInfo());
+                case CreateIncident create -> incidents.put(event.getIncidentId(), new IncidentSummary()
+                        .setIncidentId(event.getIncidentId())
+                        .setCreatedAt(event.getEventTime())
+                        .setUpdatedAt(event.getEventTime())
+                        .setInfo(create.getInfo()));
+                case UpdateIncident update -> incidents.get(event.getIncidentId())
+                        .setUpdatedAt(event.getEventTime())
+                        .getInfo().putAll(update.getInfo());
             }
             broadcastMessage(event);
         }
