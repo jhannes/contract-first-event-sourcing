@@ -1,12 +1,11 @@
 import React from "react";
-import { MessageToServer, IncidentSummary } from "./model";
+import { MessageToServer } from "./model";
 
 export const IncidentContext = React.createContext<{
-  incidents: IncidentSummary[];
+  incidents?: never;
   sendMessage(command: MessageToServer): void;
   isConnected: boolean;
 }>({
-  incidents: [],
   sendMessage: () => {},
   isConnected: false,
 });

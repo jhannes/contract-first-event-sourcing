@@ -1,34 +1,17 @@
-import { IncidentInfoPriorityEnum, IncidentSummary } from "./model";
 import React, { useContext } from "react";
 import { IncidentContext } from "./incidentContext";
 
-export function IncidentPrioritySelect({
-  incident: { info, incidentId },
-}: {
-  incident: IncidentSummary;
-}) {
+export function IncidentPrioritySelect() {
   const { sendMessage } = useContext(IncidentContext);
 
-  function setPriority(priority: IncidentInfoPriorityEnum | "") {
+  function setPriority(priority: string) {
     if (priority) {
-      sendMessage({
-        command: "IncidentCommand",
-        incidentId,
-        eventTime: new Date(),
-        delta: { delta: "UpdateIncidentDelta", info: { priority } },
-      });
     }
-    console.log({ priority });
   }
 
   return (
     <span>
-      <select
-        value={info.priority || ""}
-        onChange={(e) =>
-          setPriority(e.target.value as IncidentInfoPriorityEnum)
-        }
-      >
+      <select>
         <option value={""}>(ikke satt)</option>
         <option value={"HIGH"}>HØY</option>
         <option value={"MEDIUM"}>MIDDELS</option>
