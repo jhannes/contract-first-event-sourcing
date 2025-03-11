@@ -12,6 +12,8 @@ export function useIncidentsWebSocket() {
         delta: { title },
       } = message;
       setIncidents((old) => [...old, { incidentId, title }]);
+    } else if ("incidents" in message) {
+      setIncidents(message.incidents);
     } else {
       const unhandled: never = message;
       console.error({ unhandled });

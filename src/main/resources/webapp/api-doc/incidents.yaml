@@ -23,6 +23,7 @@ components:
     MessageFromServer:
       oneOf:
         - $ref: "#/components/schemas/IncidentEvent"
+        - $ref: "#/components/schemas/IncidentSummaryList"
 
     IncidentCommand:
       properties:
@@ -56,6 +57,14 @@ components:
         title:
           type: string
       required: [title]
+
+    IncidentSummaryList:
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentSnapshot"
+      required: [incidents]
 
     IncidentSnapshot:
       properties:
