@@ -21,7 +21,8 @@ components:
       discriminator:
         propertyName: type
     MessageFromServer:
-      oneOf: []
+      oneOf:
+        - $ref: "#/components/schemas/IncidentEvent"
 
     IncidentCommand:
       properties:
@@ -34,6 +35,17 @@ components:
         delta:
           $ref: "#/components/schemas/IncidentDelta"
       required: [incidentId, eventTime, delta]
+
+    IncidentEvent:
+      allOf:
+        - $ref: "#/components/schemas/IncidentCommand"
+        - properties:
+            timestamp:
+              type: integer
+              format: int64
+            username:
+              type: string
+          required: [timestamp]
 
     IncidentDelta:
       oneOf:

@@ -9,6 +9,8 @@ import org.eclipse.jetty.websocket.api.exceptions.WebSocketTimeoutException;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.openapitools.client.model.IncidentCommand;
+import org.openapitools.client.model.IncidentEvent;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
 
@@ -55,6 +57,9 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
                 log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
                 return;
             }
+            switch (messageToServer) {
+                case IncidentCommand command -> handleCommand(command);
+            }
         }
 
         @Override
@@ -79,5 +84,11 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             }
             getRemote().sendString(mapper.writeValueAsString(messageFromServer));
         }
+    }
+
+    private void handleCommand(IncidentCommand command) {
+        broadcastMessage(new IncidentEvent()
+                .setTimestamp(System.currentTimeMillis())
+                .putAll(command));
     }
 }
