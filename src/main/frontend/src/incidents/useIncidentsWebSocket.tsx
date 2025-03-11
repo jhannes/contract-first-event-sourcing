@@ -5,16 +5,25 @@ import { useWebSocket } from "../lib/useWebSocket";
 export function useIncidentsWebSocket() {
   const [incidents, setIncidents] = useState<IncidentSnapshot[]>([]);
 
-  function handleEvent({ delta, incidentId }: IncidentEvent) {
+  function handleEvent({
+    delta,
+    eventTime: updatedAt,
+    incidentId,
+  }: IncidentEvent) {
     if (delta.delta === "CreateIncidentDelta") {
-      const { info } = delta;
-      setIncidents((old) => [...old, { incidentId, info }]);
+      const incident = {
+        incidentId,
+        createdAt: updatedAt,
+        updatedAt,
+        info: delta.info,
+      };
+      setIncidents((old) => [...old, incident]);
     } else if (delta.delta === "UpdateIncidentDelta") {
       setIncidents((old) =>
         old.map((o) =>
           o.incidentId !== incidentId
             ? o
-            : { ...o, info: { ...o.info, ...delta.info } },
+            : { ...o, updatedAt, info: { ...o.info, ...delta.info } },
         ),
       );
     } else {

@@ -98,15 +98,24 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
 
     private void handleCommand(IncidentCommand command) {
         switch (command.getDelta()) {
-            case CreateIncidentDelta create -> incidents.put(
-                    command.getIncidentId(),
-                    new IncidentSnapshot().setIncidentId(command.getIncidentId()).setInfo(create.getInfo())
-            );
+            case CreateIncidentDelta create -> createIncident(new IncidentSnapshot()
+                    .setIncidentId(command.getIncidentId())
+                    .setCreatedAt(command.getEventTime())
+                    .setUpdatedAt(command.getEventTime())
+                    .setInfo(create.getInfo()));
             case UpdateIncidentDelta update -> incidents.get(command.getIncidentId())
+                    .setUpdatedAt(command.getEventTime())
                     .getInfo().putAll(update.getInfo());
         }
         broadcastMessage(new IncidentEvent()
                 .setTimestamp(System.currentTimeMillis())
                 .putAll(command));
+    }
+
+    private void createIncident(IncidentSnapshot snapshot) {
+        if (!snapshot.missingRequiredFields("").isEmpty()) {
+            throw new IllegalStateException("Missing required fields " + snapshot.missingRequiredFields(""));
+        }
+        incidents.put(snapshot.getIncidentId(), snapshot);
     }
 }
