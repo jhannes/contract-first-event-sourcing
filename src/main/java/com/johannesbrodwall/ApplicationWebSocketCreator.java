@@ -28,13 +28,6 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         return adapter;
     }
 
-    private void handleMessageToServer(MessageToServer messageToServer) {
-        if (!messageToServer.missingRequiredFields("").isEmpty()) {
-            log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
-            return;
-        }
-    }
-
     @SneakyThrows
     private void broadcastMessage(MessageFromServer messageFromServer) {
         for (var client : connectedClients) {
@@ -53,8 +46,15 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         @SneakyThrows
         @Override
         public void onWebSocketText(String message) {
-            var messageToServer = mapper.readValue(message, MessageToServer.class);
+            handleMessageToServer(mapper.readValue(message, MessageToServer.class));
+        }
+
+        private void handleMessageToServer(MessageToServer messageToServer) {
             log.info(messageToServer.toString());
+            if (!messageToServer.missingRequiredFields("").isEmpty()) {
+                log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
+                return;
+            }
         }
 
         @Override
