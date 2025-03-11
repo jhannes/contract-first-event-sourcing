@@ -1,11 +1,24 @@
 import React, { useContext } from "react";
 import { IncidentContext } from "./incidentContext";
+import { IncidentInfoPriorityEnum, IncidentSnapshot } from "./model";
 
-export function IncidentPrioritySelect() {
+interface IncidentPrioritySelectProps {
+  incident: IncidentSnapshot;
+}
+
+export function IncidentPrioritySelect({
+  incident: { incidentId },
+}: IncidentPrioritySelectProps) {
   const { sendMessage } = useContext(IncidentContext);
 
-  function setPriority(priority: string) {
+  function setPriority(priority: IncidentInfoPriorityEnum) {
     if (priority) {
+      sendMessage({
+        incidentId,
+        eventTime: new Date(),
+        type: "IncidentCommand",
+        delta: { delta: "UpdateIncidentDelta", info: { priority } },
+      });
     }
   }
 

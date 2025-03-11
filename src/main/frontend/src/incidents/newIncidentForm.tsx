@@ -12,7 +12,7 @@ export function NewIncidentForm() {
       type: "IncidentCommand",
       incidentId: uuidv4(),
       eventTime: new Date(),
-      delta: { title },
+      delta: { delta: "CreateIncidentDelta", info: { title } },
     });
   }
 

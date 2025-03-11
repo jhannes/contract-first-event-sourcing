@@ -16,6 +16,7 @@ import org.openapitools.client.model.IncidentSnapshot;
 import org.openapitools.client.model.IncidentSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
+import org.openapitools.client.model.UpdateIncidentDelta;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,8 +100,10 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         switch (command.getDelta()) {
             case CreateIncidentDelta create -> incidents.put(
                     command.getIncidentId(),
-                    new IncidentSnapshot().setIncidentId(command.getIncidentId()).setTitle(create.getTitle())
+                    new IncidentSnapshot().setIncidentId(command.getIncidentId()).setInfo(create.getInfo())
             );
+            case UpdateIncidentDelta update -> incidents.get(command.getIncidentId())
+                    .getInfo().putAll(update.getInfo());
         }
         broadcastMessage(new IncidentEvent()
                 .setTimestamp(System.currentTimeMillis())

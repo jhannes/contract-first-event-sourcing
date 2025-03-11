@@ -9,9 +9,9 @@ export function useIncidentsWebSocket() {
     if ("delta" in message) {
       const {
         incidentId,
-        delta: { title },
+        delta: { info },
       } = message;
-      setIncidents((old) => [...old, { incidentId, title }]);
+      setIncidents((old) => [...old, { incidentId, info }]);
     } else if ("incidents" in message) {
       setIncidents(message.incidents);
     } else {
