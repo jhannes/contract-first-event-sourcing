@@ -52,6 +52,7 @@ components:
       oneOf:
         - $ref: "#/components/schemas/CreateIncident"
         - $ref: "#/components/schemas/UpdateIncident"
+        - $ref: "#/components/schemas/AddPersonToIncident"
       discriminator:
         propertyName: delta
 
@@ -63,6 +64,14 @@ components:
       properties:
         info: { $ref: "#/components/schemas/IncidentInfo" }
       required: [info]
+    AddPersonToIncident:
+      properties:
+        personId:
+          type: string
+          format: uuid
+        info:
+          $ref: "#/components/schemas/PersonInfo"
+      required: [personId, info]
 
     IncidentSummaryList:
       properties:
@@ -90,9 +99,27 @@ components:
           $ref: "#/components/schemas/IncidentInfo"
       required: [incidentId, createdAt, updatedAt, info]
 
+    IncidentSnapshot:
+      allOf:
+        - $ref: "#/components/schemas/IncidentSummary"
+        - properties:
+            persons:
+              additionalProperties:
+                $ref: "#/components/schemas/PersonInfo"
+          required: [persons]
+
     IncidentInfo:
       properties:
         title:
           type: string
         priority:
           enum: [HIGH, MEDIUM, LOW]
+
+    PersonInfo:
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          enum: [WITNESS, CALLER, SUSPECT]

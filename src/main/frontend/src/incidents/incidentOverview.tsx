@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { NewIncidentForm } from "./newIncidentForm";
 import { IncidentPrioritySelect } from "./incidentPrioritySelect";
 import { IncidentContext } from "./incidentContext";
+import { Link } from "react-router";
 
 export function IncidentOverview() {
   const { incidents } = useContext(IncidentContext);
@@ -15,7 +16,10 @@ export function IncidentOverview() {
         )
         .map((incident) => (
           <div key={incident.incidentId}>
-            <IncidentPrioritySelect incident={incident} /> {incident.info.title}
+            <IncidentPrioritySelect incident={incident} />{" "}
+            <Link to={`/incidents/${incident.incidentId}`}>
+              {incident.info.title}
+            </Link>
           </div>
         ))}
       <h2>Create new incident</h2>

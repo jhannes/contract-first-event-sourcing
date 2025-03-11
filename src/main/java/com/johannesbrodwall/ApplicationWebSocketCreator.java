@@ -9,10 +9,11 @@ import org.eclipse.jetty.websocket.api.exceptions.WebSocketTimeoutException;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.openapitools.client.model.AddPersonToIncident;
 import org.openapitools.client.model.CreateIncident;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
-import org.openapitools.client.model.IncidentSummary;
+import org.openapitools.client.model.IncidentSnapshot;
 import org.openapitools.client.model.IncidentSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
@@ -30,7 +31,7 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
     private final ObjectMapper mapper = new ApplicationObjectMapper();
 
     private final Set<ApplicationWebSocketAdapter> connectedClients = new HashSet<>();
-    private final HashMap<UUID, IncidentSummary> incidents = new HashMap<>();
+    private final HashMap<UUID, IncidentSnapshot> incidents = new HashMap<>();
     private long timestamp = System.currentTimeMillis();
 
 
@@ -51,7 +52,7 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             timestamp = System.currentTimeMillis();
             var event = new IncidentEvent().setTimestamp(timestamp).putAll(command);
             switch (event.getDelta()) {
-                case CreateIncident create -> incidents.put(event.getIncidentId(), new IncidentSummary()
+                case CreateIncident create -> incidents.put(event.getIncidentId(), new IncidentSnapshot()
                         .setIncidentId(event.getIncidentId())
                         .setCreatedAt(event.getEventTime())
                         .setUpdatedAt(event.getEventTime())
@@ -59,6 +60,9 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
                 case UpdateIncident update -> incidents.get(event.getIncidentId())
                         .setUpdatedAt(event.getEventTime())
                         .getInfo().putAll(update.getInfo());
+                case AddPersonToIncident addPerson -> incidents.get(event.getIncidentId())
+                        .setUpdatedAt(event.getEventTime())
+                        .getPersons().put(addPerson.getPersonId().toString(), addPerson.getInfo());
             }
             broadcastMessage(event);
         }

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { IncidentSummary, MessageFromServer } from "./model";
+import { IncidentSnapshot, IncidentSummary, MessageFromServer } from "./model";
 import { useWebSocket } from "../lib/useWebSocket";
 
 export function useIncidentsWebSocket() {
-  const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
+  const [incidents, setIncidents] = useState<
+    (IncidentSummary | IncidentSnapshot)[]
+  >([]);
 
   function handleMessage(message: MessageFromServer) {
     if ("delta" in message) {
@@ -33,6 +35,29 @@ export function useIncidentsWebSocket() {
             old.map((o) =>
               o.incidentId === incidentId
                 ? { ...o, updatedAt, info: { ...o.info, ...info } }
+                : o,
+            ),
+          );
+          return;
+        }
+        case "AddPersonToIncident": {
+          const {
+            incidentId,
+            eventTime: updatedAt,
+            delta: { personId, info },
+          } = message;
+          setIncidents((old) =>
+            old.map((o) =>
+              o.incidentId === incidentId
+                ? {
+                    ...o,
+                    updatedAt,
+                    info: { ...o.info, ...info },
+                    persons:
+                      "persons" in o
+                        ? { ...o.persons, [personId]: info }
+                        : { [personId]: info },
+                  }
                 : o,
             ),
           );
