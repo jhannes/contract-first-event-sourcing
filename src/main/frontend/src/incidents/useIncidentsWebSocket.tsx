@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { IncidentEvent, IncidentSnapshot, MessageFromServer } from "./model";
+import {
+  IncidentEvent,
+  IncidentSummary,
+  IncidentSnapshot,
+  MessageFromServer,
+} from "./model";
 import { useWebSocket } from "../lib/useWebSocket";
 
 export function useIncidentsWebSocket() {
-  const [incidents, setIncidents] = useState<IncidentSnapshot[]>([]);
+  const [incidents, setIncidents] = useState<
+    (IncidentSummary | IncidentSnapshot)[]
+  >([]);
 
   function handleEvent({
     delta,
@@ -33,7 +40,14 @@ export function useIncidentsWebSocket() {
         old.map((o) =>
           o.incidentId !== incidentId
             ? o
-            : { ...o, updatedAt, persons: { ...o.persons, [personId]: info } },
+            : {
+                ...o,
+                updatedAt,
+                persons: {
+                  ...("persons" in o ? o.persons : {}),
+                  [personId]: info,
+                },
+              },
         ),
       );
     } else {
@@ -47,6 +61,11 @@ export function useIncidentsWebSocket() {
       handleEvent(message);
     } else if ("incidents" in message) {
       setIncidents(message.incidents);
+    } else if ("incidentId" in message) {
+      const { incidentId } = message;
+      setIncidents((old) =>
+        old.map((o) => (o.incidentId === incidentId ? message : o)),
+      );
     } else {
       const unhandled: never = message;
       console.error({ unhandled });

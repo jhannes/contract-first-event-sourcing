@@ -14,6 +14,8 @@ import org.openapitools.client.model.CreateIncidentDelta;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
 import org.openapitools.client.model.IncidentSnapshot;
+import org.openapitools.client.model.IncidentSubscribeRequest;
+import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
@@ -51,8 +53,9 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         public void onWebSocketConnect(Session sess) {
             super.onWebSocketConnect(sess);
             log.info("connected");
-            sendMessage(new IncidentSummaryList()
-                    .setIncidents(incidents.values().stream().toList())
+            sendMessage(new IncidentSummaryList().setIncidents(incidents.values().stream()
+                    .map(snapshot -> new IncidentSummary().putAll(snapshot))
+                    .toList())
             );
         }
 
@@ -70,6 +73,7 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             }
             switch (messageToServer) {
                 case IncidentCommand command -> handleCommand(command);
+                case IncidentSubscribeRequest subscribe -> sendMessage(incidents.get(subscribe.getIncidentId()));
             }
         }
 

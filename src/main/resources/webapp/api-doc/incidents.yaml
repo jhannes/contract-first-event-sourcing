@@ -17,6 +17,7 @@ components:
   schemas:
     MessageToServer:
       oneOf:
+        - $ref: "#/components/schemas/IncidentSubscribeRequest"
         - $ref: "#/components/schemas/IncidentCommand"
       discriminator:
         propertyName: type
@@ -24,6 +25,12 @@ components:
       oneOf:
         - $ref: "#/components/schemas/IncidentEvent"
         - $ref: "#/components/schemas/IncidentSummaryList"
+        - $ref: "#/components/schemas/IncidentSnapshot"
+
+    IncidentSubscribeRequest:
+      properties:
+        incidentId: { type: string, format: uuid }
+      required: [incidentId]
 
     IncidentCommand:
       properties:
@@ -76,10 +83,10 @@ components:
         incidents:
           type: array
           items:
-            $ref: "#/components/schemas/IncidentSnapshot"
+            $ref: "#/components/schemas/IncidentSummary"
       required: [incidents]
 
-    IncidentSnapshot:
+    IncidentSummary:
       properties:
         incidentId:
           type: string
@@ -92,10 +99,16 @@ components:
           format: date-time
         info:
           $ref: "#/components/schemas/IncidentInfo"
-        persons:
-          additionalProperties:
-            $ref: "#/components/schemas/PersonInfo"
-      required: [incidentId, createdAt, updatedAt, info, persons]
+      required: [incidentId, createdAt, updatedAt, info]
+
+    IncidentSnapshot:
+      allOf:
+        - $ref: "#/components/schemas/IncidentSummary"
+        - properties:
+            persons:
+              additionalProperties:
+                $ref: "#/components/schemas/PersonInfo"
+          required: [persons]
 
     IncidentInfo:
       properties:

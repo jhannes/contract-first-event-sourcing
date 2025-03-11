@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { IncidentContext } from "./incidentContext";
-import { IncidentInfoPriorityEnum, IncidentSnapshot } from "./model";
+import { IncidentInfoPriorityEnum, IncidentSummary } from "./model";
 
 interface IncidentPrioritySelectProps {
-  incident: IncidentSnapshot;
+  incident: IncidentSummary;
 }
 
 export function IncidentPrioritySelect({

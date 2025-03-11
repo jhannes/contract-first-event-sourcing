@@ -1,8 +1,8 @@
 import React from "react";
-import { IncidentSnapshot, MessageToServer } from "./model";
+import { IncidentSnapshot, IncidentSummary, MessageToServer } from "./model";
 
 export const IncidentContext = React.createContext<{
-  incidents: IncidentSnapshot[];
+  incidents: (IncidentSummary | IncidentSnapshot)[];
   sendMessage(command: MessageToServer): void;
   isConnected: boolean;
 }>({
