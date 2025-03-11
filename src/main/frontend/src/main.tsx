@@ -11,7 +11,7 @@ function Application() {
   return (
     <BrowserRouter>
       {isConnected || <div>Disconnected</div>}
-      <IncidentContext value={{ sendMessage, isConnected }}>
+      <IncidentContext value={{ incidents, sendMessage, isConnected }}>
         <Routes>
           <Route
             path={"/incidents/:incidentId"}
