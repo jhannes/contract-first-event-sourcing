@@ -7,7 +7,10 @@ interface IncidentPrioritySelectProps {
 }
 
 export function IncidentPrioritySelect({
-  incident: { incidentId },
+  incident: {
+    incidentId,
+    info: { priority },
+  },
 }: IncidentPrioritySelectProps) {
   const { sendMessage } = useContext(IncidentContext);
 
@@ -24,7 +27,12 @@ export function IncidentPrioritySelect({
 
   return (
     <span>
-      <select>
+      <select
+        value={priority}
+        onChange={(e) =>
+          setPriority(e.target.value as IncidentInfoPriorityEnum)
+        }
+      >
         <option value={""}>(ikke satt)</option>
         <option value={"HIGH"}>HØY</option>
         <option value={"MEDIUM"}>MIDDELS</option>

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.openapitools.client.model.CreateIncidentDelta;
 import org.openapitools.client.model.IncidentDelta;
 import org.openapitools.client.model.MessageToServer;
 
@@ -20,7 +19,7 @@ class ApplicationObjectMapper extends ObjectMapper {
     private static class ApplicationModule extends SimpleModule {
         ApplicationModule() {
             addInterfaceDeserializer(MessageToServer.class, p -> MessageToServer.getType(p.get("type").asText()));
-            addInterfaceDeserializer(IncidentDelta.class, _ -> CreateIncidentDelta.class);
+            addInterfaceDeserializer(IncidentDelta.class, p -> IncidentDelta.getType(p.get("delta").asText()));
         }
 
         private <T> void addInterfaceDeserializer(Class<T> interfaceType, Function<ObjectNode, Class<? extends T>> typeLookup) {
