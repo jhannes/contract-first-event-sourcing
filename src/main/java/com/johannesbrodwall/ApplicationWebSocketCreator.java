@@ -14,13 +14,14 @@ import org.openapitools.client.model.CreateIncident;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
 import org.openapitools.client.model.IncidentSnapshot;
+import org.openapitools.client.model.IncidentSubscribeRequest;
+import org.openapitools.client.model.IncidentSummary;
 import org.openapitools.client.model.IncidentSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
 import org.openapitools.client.model.UpdateIncident;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,30 +43,23 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         return adapter;
     }
 
-    private void handleMessageToServer(MessageToServer messageToServer) {
-        log.info(messageToServer.toString());
-        if (!messageToServer.missingRequiredFields("").isEmpty()) {
-            log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
-            return;
+    private void handleCommand(IncidentCommand command) {
+        timestamp = System.currentTimeMillis();
+        var event = new IncidentEvent().setTimestamp(timestamp).putAll(command);
+        switch (event.getDelta()) {
+            case CreateIncident create -> incidents.put(event.getIncidentId(), new IncidentSnapshot()
+                    .setIncidentId(event.getIncidentId())
+                    .setCreatedAt(event.getEventTime())
+                    .setUpdatedAt(event.getEventTime())
+                    .setInfo(create.getInfo()));
+            case UpdateIncident update -> incidents.get(event.getIncidentId())
+                    .setUpdatedAt(event.getEventTime())
+                    .getInfo().putAll(update.getInfo());
+            case AddPersonToIncident addPerson -> incidents.get(event.getIncidentId())
+                    .setUpdatedAt(event.getEventTime())
+                    .getPersons().put(addPerson.getPersonId().toString(), addPerson.getInfo());
         }
-        if (messageToServer instanceof IncidentCommand command) {
-            timestamp = System.currentTimeMillis();
-            var event = new IncidentEvent().setTimestamp(timestamp).putAll(command);
-            switch (event.getDelta()) {
-                case CreateIncident create -> incidents.put(event.getIncidentId(), new IncidentSnapshot()
-                        .setIncidentId(event.getIncidentId())
-                        .setCreatedAt(event.getEventTime())
-                        .setUpdatedAt(event.getEventTime())
-                        .setInfo(create.getInfo()));
-                case UpdateIncident update -> incidents.get(event.getIncidentId())
-                        .setUpdatedAt(event.getEventTime())
-                        .getInfo().putAll(update.getInfo());
-                case AddPersonToIncident addPerson -> incidents.get(event.getIncidentId())
-                        .setUpdatedAt(event.getEventTime())
-                        .getPersons().put(addPerson.getPersonId().toString(), addPerson.getInfo());
-            }
-            broadcastMessage(event);
-        }
+        broadcastMessage(event);
     }
 
     @SneakyThrows
@@ -83,14 +77,27 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             log.info("connected");
             sendMessage(new IncidentSummaryList()
                     .setLastTimestamp(timestamp)
-                    .setIncidents(new ArrayList<>(incidents.values())));
+                    .setIncidents(incidents.values().stream()
+                            .map(s -> new IncidentSummary().putAll(s))
+                            .toList()));
         }
 
         @SneakyThrows
         @Override
         public void onWebSocketText(String message) {
-            var messageToServer = mapper.readValue(message, MessageToServer.class);
-            handleMessageToServer(messageToServer);
+            handleMessageToServer(mapper.readValue(message, MessageToServer.class));
+        }
+
+        private void handleMessageToServer(MessageToServer messageToServer) {
+            log.info(messageToServer.toString());
+            if (!messageToServer.missingRequiredFields("").isEmpty()) {
+                log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
+                return;
+            }
+            switch (messageToServer) {
+                case IncidentCommand command -> handleCommand(command);
+                case IncidentSubscribeRequest request -> sendMessage(incidents.get(request.getIncidentId()));
+            }
         }
 
         @Override
