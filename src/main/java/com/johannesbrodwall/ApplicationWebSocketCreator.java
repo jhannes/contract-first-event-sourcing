@@ -9,6 +9,7 @@ import org.eclipse.jetty.websocket.api.exceptions.WebSocketTimeoutException;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.openapitools.client.model.AddPersonToIncidentDelta;
 import org.openapitools.client.model.CreateIncidentDelta;
 import org.openapitools.client.model.IncidentCommand;
 import org.openapitools.client.model.IncidentEvent;
@@ -106,6 +107,9 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
             case UpdateIncidentDelta update -> incidents.get(command.getIncidentId())
                     .setUpdatedAt(command.getEventTime())
                     .getInfo().putAll(update.getInfo());
+            case AddPersonToIncidentDelta addPerson -> incidents.get(command.getIncidentId())
+                    .setUpdatedAt(command.getEventTime())
+                    .getPersons().put(addPerson.getPersonId().toString(), addPerson.getInfo());
         }
         broadcastMessage(new IncidentEvent()
                 .setTimestamp(System.currentTimeMillis())

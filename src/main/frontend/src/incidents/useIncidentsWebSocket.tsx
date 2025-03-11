@@ -16,6 +16,7 @@ export function useIncidentsWebSocket() {
         createdAt: updatedAt,
         updatedAt,
         info: delta.info,
+        persons: {},
       };
       setIncidents((old) => [...old, incident]);
     } else if (delta.delta === "UpdateIncidentDelta") {
@@ -24,6 +25,15 @@ export function useIncidentsWebSocket() {
           o.incidentId !== incidentId
             ? o
             : { ...o, updatedAt, info: { ...o.info, ...delta.info } },
+        ),
+      );
+    } else if (delta.delta === "AddPersonToIncidentDelta") {
+      const { personId, info } = delta;
+      setIncidents((old) =>
+        old.map((o) =>
+          o.incidentId !== incidentId
+            ? o
+            : { ...o, updatedAt, persons: { ...o.persons, [personId]: info } },
         ),
       );
     } else {
