@@ -9,17 +9,26 @@ import org.eclipse.jetty.websocket.api.exceptions.WebSocketTimeoutException;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketCreator;
+import org.openapitools.client.model.CreateIncidentDelta;
+import org.openapitools.client.model.IncidentCommand;
+import org.openapitools.client.model.IncidentEvent;
+import org.openapitools.client.model.IncidentSummary;
+import org.openapitools.client.model.IncidentSummaryList;
 import org.openapitools.client.model.MessageFromServer;
 import org.openapitools.client.model.MessageToServer;
+import org.openapitools.client.model.UpdateIncidentDelta;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
     private final ObjectMapper mapper = new ApplicationObjectMapper();
 
     private final Set<ApplicationWebSocketAdapter> connectedClients = new HashSet<>();
+    private final HashMap<UUID, IncidentSummary> incidents = new HashMap<>();
 
     @Override
     public WebSocketAdapter createWebSocket(JettyServerUpgradeRequest req, JettyServerUpgradeResponse resp) {
@@ -41,6 +50,9 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
         public void onWebSocketConnect(Session sess) {
             super.onWebSocketConnect(sess);
             log.info("connected");
+            sendMessage(new IncidentSummaryList()
+                    .setIncidents(incidents.values().stream().toList())
+            );
         }
 
         @SneakyThrows
@@ -55,6 +67,28 @@ public class ApplicationWebSocketCreator implements JettyWebSocketCreator {
                 log.error("Missing required fields {} in {}", messageToServer.missingRequiredFields(""), messageToServer);
                 return;
             }
+            switch (messageToServer) {
+                case IncidentCommand command -> handleCommand(command);
+            }
+
+        }
+
+        private void handleCommand(IncidentCommand command) {
+            switch (command.getDelta()) {
+                case CreateIncidentDelta create ->
+                        incidents.put(command.getIncidentId(), new IncidentSummary()
+                                .setIncidentId(command.getIncidentId())
+                                .setInfo(create.getInfo())
+                        );
+                case UpdateIncidentDelta update ->
+                        incidents.get(command.getIncidentId())
+                                .getInfo().putAll(update.getInfo());
+            }
+
+            broadcastMessage(new IncidentEvent()
+                    .setTimestamp(System.currentTimeMillis())
+                    .putAll(command)
+            );
         }
 
         @Override

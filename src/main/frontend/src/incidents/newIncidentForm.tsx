@@ -8,13 +8,22 @@ export function NewIncidentForm() {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    sendMessage({
+      type: "IncidentCommand",
+      incidentId: uuidv4(),
+      eventTime: new Date(),
+      delta: {
+        delta: "CreateIncidentDelta",
+        info: { title },
+      },
+    });
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <div>
         <label>
-          Title:{" "}
+          Description:{" "}
           <input value={title} onChange={(e) => setTitle(e.target.value)} />
         </label>
       </div>

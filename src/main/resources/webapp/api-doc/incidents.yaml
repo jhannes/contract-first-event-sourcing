@@ -16,8 +16,77 @@ paths:
 components:
   schemas:
     MessageToServer:
-      oneOf: []
+      oneOf:
+        - $ref: "#/components/schemas/IncidentCommand"
       discriminator:
         propertyName: type
     MessageFromServer:
-      oneOf: []
+      oneOf:
+        - $ref: "#/components/schemas/IncidentSummaryList"
+        - $ref: "#/components/schemas/IncidentEvent"
+
+    IncidentCommand:
+      properties:
+        incidentId:
+          type: string
+          format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        delta:
+          $ref: "#/components/schemas/IncidentDelta"
+      required: [incidentId, eventTime, delta]
+
+    IncidentEvent:
+      allOf:
+        - $ref: "#/components/schemas/IncidentCommand"
+        - properties:
+            username:
+              type: string
+            timestamp:
+              type: integer
+              format: int64
+          required: [timestamp]
+
+    IncidentDelta:
+      oneOf:
+        - $ref: "#/components/schemas/CreateIncidentDelta"
+        - $ref: "#/components/schemas/UpdateIncidentDelta"
+      discriminator:
+        propertyName: delta
+
+    CreateIncidentDelta:
+      properties:
+        info:
+          $ref: "#/components/schemas/IncidentInfo"
+      required: [info]
+
+    UpdateIncidentDelta:
+      properties:
+        info:
+          $ref: "#/components/schemas/IncidentInfo"
+      required: [info]
+
+    IncidentSummary:
+      properties:
+        incidentId:
+          type: string
+          format: uuid
+        info:
+          $ref: "#/components/schemas/IncidentInfo"
+      required: [incidentId, info]
+
+    IncidentInfo:
+      properties:
+        title:
+          type: string
+        priority:
+          enum: [HIGH, MEDIUM, LOW]
+
+    IncidentSummaryList:
+      properties:
+        incidents:
+          type: array
+          items:
+            $ref: "#/components/schemas/IncidentSummary"
+      required: [incidents]
