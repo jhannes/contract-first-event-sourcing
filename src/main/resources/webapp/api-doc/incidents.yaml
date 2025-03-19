@@ -12,14 +12,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MessagesFromServer"
+                $ref: "#/components/schemas/MessageFromServer"
 components:
   schemas:
     MessageFromServer:
       oneOf:
-        - $ref: "#/components/schemas/IncidentsSnapshotList"
-        - $ref: "#/components/schemas/RemoveIncidentSignal"
-        - $ref: "#/components/schemas/IncidentEvent"
+        - $ref: "#/components/schemas/MessageSummary"
 
     MessageSummary:
       properties:
